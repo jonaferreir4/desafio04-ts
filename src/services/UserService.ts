@@ -12,7 +12,6 @@ const db = [
 
 export class UserService {
     db: User[]
-
     constructor(
         database = db
     ){
@@ -31,6 +30,12 @@ export class UserService {
 
     getAllUsers = () => {
         return this.db
+    }
+
+    deleteUser = (user: User) => {
+        this.db = this.db.filter(u => u.name !== user.name || u.email !== user.email)
+        console.log(`Usuário deletado: ${user.name} - ${user.email}`)
+        return user
     }
 }
 
