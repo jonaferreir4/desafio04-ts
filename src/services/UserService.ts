@@ -1,41 +1,62 @@
-export interface User {
-    name: string
-    email: string
-}
-
-const db = [
-    {
-        name: "Joana",
-        email: "joana@dio.com",
-    }
-]
+import { sign } from "jsonwebtoken";
+import { LoginController } from "../controllers/LoginController";
+import { AppDataSource } from "../database";
+import { User } from "../entities/User";
+import { UserRepository } from "../repositories/UserRepository"
+import { DeleteResult } from "typeorm";
 
 export class UserService {
-    db: User[]
-    constructor(
-        database = db
-    ){
-        this.db = database
+    private userRepository: UserRepository;
+
+    constructor ( 
+        userRepository = new UserRepository(AppDataSource.manager)
+     ) {
+        this.userRepository = userRepository
+
     }
 
-    createUser = (name: string, email: string) => {
-        const user = {
-            name,
-            email
+    createUser = async (name: string, email: string, password: string): Promise<User> => {
+        const user = new User(name, email, password)
+        return this.userRepository.createUser(user)
+
+    }
+
+    getUser = async (userId: string): Promise<User | null> => {
+        return this.userRepository.getUser(userId)
+    }
+
+    getAuthenticatedUser = async (email: string, password: string): Promise<User | null> => {
+        return this.userRepository.getUserByEmailAndPassword(email, password)
+    }
+
+    getToken = async (email: string, password: string): Promise<string> => {
+        const user = await this.getAuthenticatedUser(email, password)
+
+        if(!user) {
+            throw new Error('Email or Password invalid!')
+        }
+        
+        const tokenData = {
+             name: user?.name,
+             email: user?.email
+        }
+        const tokenKey = '123456789'
+        const tokenOptions = {
+            subject: user?.user_id
         }
 
-        this.db.push(user)
-        console.log('DB atualizado', this.db)
+        const token = sign(tokenData, tokenKey, tokenOptions)
+
+        return token
+    
     }
 
-    getAllUsers = () => {
-        return this.db
+    updataUser = async(userId: string, updateData: Partial<User>): Promise<User | null> =>  {
+        return this.userRepository.updateUser(userId, updateData)
     }
 
-    deleteUser = (user: User) => {
-        this.db = this.db.filter(u => u.name !== user.name || u.email !== user.email)
-        console.log(`Usuário deletado: ${user.name} - ${user.email}`)
-        return user
+    deleteUser = async (userId: string): Promise<User | null > => {
+       return await this.userRepository.deleteUser(userId)
     }
 }
 

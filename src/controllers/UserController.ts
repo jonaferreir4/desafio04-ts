@@ -13,32 +13,45 @@ export class UserController {
     createUser = (request: Request, response: Response): Response => {
         const user = request.body
 
-        if(!user.name){
-            return response.status(400).json({ message: 'Bad request! Name obrigatório'})
-        }
-
-        if(!user.email){
-            return response.status(400).json({ message: 'Bad request! Email obrigatório'})
+        if(!user.name ||!user.email || !user.password){
+            return response.status(400).json({ message: 'Bad request! Name, email e password obrigatórios'})
         }
         
 
-        this.userService.createUser(user.name, user.email)
+        this.userService.createUser(user.name, user.email, user.password)
         return response.status(201).json({ message: 'Usuário criado'})
     }
 
-    getAllUsers = (request: Request, response: Response) => {
-        const users = this.userService.getAllUsers()
-        return response.status(200).json( users )
+    getUser = async (request: Request, response: Response) => {
+        const { user_id } = request.params
+        const user =  await this.userService.getUser(user_id)
+
+        return response.status(200).json({
+            user_id: user?.user_id,
+            name: user?.name,
+            email: user?.email
+        })
     }
 
-    deleteUser = (request: Request, response: Response) => {
-        const { name, email } = request.body
-        const userDeleted = this.userService.deleteUser({ name, email })
-        
-        if (userDeleted) {
-            return response.status(200).json({ message: `Usuário ${name} deletado com sucesso!` })
-        } else {
-            return response.status(404).json({ message: 'Usuário não encontrado!' })
+    updateUser  = async (request: Request, response: Response) => {
+        const { user_id } = request.params
+        const updateData = request.body
+        const result = await this.userService.updataUser(user_id, updateData)
+        if(result) {
+            return response.status(200).json({ message: `Usuário atualizado!` })
         }
+        return response.status(400).json({ message: 'Falha ao atualizar usuário!' })
+
+
     }
+
+    userDelete = async (request: Request, response: Response) => {
+        const { user_id } = request.params
+        const result = await this.userService.deleteUser(user_id)
+        if(result) {
+            return response.status(200).json({ message: `Usuário deletado!` })
+        }
+        return response.status(400).json({ message: 'Falha ao deletar usuário!' })
+    }
+
 }

@@ -1,14 +1,18 @@
 import { Router, Request, Response } from 'express'
 import { UserController } from './controllers/UserController'
+import { LoginController } from './controllers/LoginController'
+import { verifyAuth } from './midlleware/verifyAuth'
 
 export const router = Router()
 
 const userController = new UserController()
+const loginController = new LoginController()
 
+
+// Tenho que ver mais direito mas parece que para proteger as rotas tenho que bota o verifyAuth em todas as rotas
+// fora a de login
 router.post('/user', userController.createUser)
-router.get('/user', userController.getAllUsers)
-router.delete('/user', (request: Request, response: Response) => {
-    const user = request.body
-    console.log('Deletando usuário...', user)
-    return response.status(200).json({ message: 'Usuário deletado'})
-})
+router.get('/user/:user_id', verifyAuth,  userController.getUser)
+router.delete('/user/:user_id', userController.userDelete)
+router.patch('/user/:user_id', userController.updateUser)
+router.post('/login', loginController.login)
