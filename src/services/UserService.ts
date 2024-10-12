@@ -3,7 +3,6 @@ import { LoginController } from "../controllers/LoginController";
 import { AppDataSource } from "../database";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository"
-import { DeleteResult } from "typeorm";
 
 export class UserService {
     private userRepository: UserRepository;
@@ -51,7 +50,7 @@ export class UserService {
     
     }
 
-    updataUser = async(userId: string, updateData: Partial<User>): Promise<User | null> =>  {
+    updateUser = async(userId: string, updateData: Partial<User>): Promise<User | null> =>  {
         return this.userRepository.updateUser(userId, updateData)
     }
 

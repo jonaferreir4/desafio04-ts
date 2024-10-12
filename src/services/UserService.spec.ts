@@ -7,20 +7,24 @@ jest.mock("../database", () => {
     initialize: jest.fn()
 })
 
+
+
 // fazendo mock do endereço de memória
 jest.mock('jsonwebtoken')
 
+
+const mockUser = {
+    user_id: '123456',
+    name: 'nath',
+    email: 'nath@test.com',
+    password: '123456'
+}
 
 const mockUserRepository = require("../repositories/UserRepository")
 
 describe('UserService', () => {
     const userService = new UserService(mockUserRepository)
-    const mockUser = {
-        user_id: '123456',
-        name: 'nath',
-        email: 'nath@test.com',
-        password: '123456'
-    }
+    
 
     it('Deve adicionar um novo usuário', async() => {
         mockUserRepository.createUser = jest.fn().mockImplementation(() => Promise.resolve(mockUser))
@@ -46,16 +50,31 @@ describe('UserService', () => {
         await expect(userService.getToken('invalid@gmail.com', '1234')).rejects.toThrowError(new Error('Email or Password invalid!'))
     })
 
-    // it('Deve deletar o usuário',  () => {
-    //     const mockUser: User = { name: 'nath', email: 'nath@test.com' };
-    //     mockDb.push(mockUser);
+    it("Deve Atualizar o usuário pelo id", async () => {
+        const updateUser = {...mockUser, name: 'Nathaly' }
+        jest.spyOn(userService, 'updateUser').mockImplementation(() => Promise.resolve(updateUser))
+        const response = await userService.updateUser(mockUser.user_id, { name: 'Nathaly' })
+        expect(userService.updateUser).toHaveBeenCalled()
+        expect(response).toMatchObject({
+            user_id: '123456',
+            name: 'Nathaly',
+            email: 'nath@test.com',
+            password: '123456'
+        })
+    })
 
-    //     const mockConsole = jest.spyOn(global.console, 'log'); // Espiona o console.log
-    //     const userDeleted = userService.deleteUser(mockUser); 
+    it("Deve deletar um usuário pelo id", async() => {
+        jest.spyOn(userService, 'deleteUser').mockImplementation(() => Promise.resolve(mockUser))
+        const response = await userService.deleteUser(mockUser.user_id)
+        expect(userService.deleteUser).toHaveBeenCalled()
+        expect(response).toMatchObject({
+            user_id: '123456',
+            name: 'nath',
+            email: 'nath@test.com',
+            password: '123456'
+        })
 
-    //     expect(userDeleted).toMatchObject(mockUser);
-    //     expect(mockConsole).toHaveBeenCalledWith(`Usuário deletado: ${mockUser.name} - ${mockUser.email}`);
-    // })
+    })
 
 });
 
