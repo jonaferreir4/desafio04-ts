@@ -13,6 +13,6 @@ const loginController = new LoginController()
 // fora a de login
 router.post('/user', userController.createUser)
 router.get('/user/:user_id', verifyAuth,  userController.getUser)
-router.delete('/user/:user_id', verifyAuth, userController.userDelete)
+router.delete('/user/:user_id', verifyAuth, userController.deleteUser)
 router.patch('/user/:user_id', verifyAuth, userController.updateUser)
 router.post('/login', loginController.login)

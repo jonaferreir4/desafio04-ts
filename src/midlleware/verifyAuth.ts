@@ -12,6 +12,12 @@ export function verifyAuth (request: Request, response: Response, next: NextFunc
             console.log('Token for user ', sub)
             return next()
         } catch (err) {
+            if (typeof err === 'object' && err !== null && 'name' in err) {
+                const error = err as { name: string };
+                if (error.name === 'TokenExpiredError') {
+                    return response.status(401).json({ message: "Token expired" });
+                }
+            }
             return response.status(401).json({ message: "Unauthorized" })
         }
     }

@@ -1,10 +1,12 @@
 import "reflect-metadata"
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import { router } from './routes';
 import { AppDataSource } from "./database";
 
 const server = express();
 
+server.use(cors())
 server.use(express.json())
 server.use(router)
 

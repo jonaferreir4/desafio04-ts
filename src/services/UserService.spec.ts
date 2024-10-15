@@ -24,9 +24,9 @@ const mockUserRepository = require("../repositories/UserRepository")
 
 describe('UserService', () => {
     const userService = new UserService(mockUserRepository)
-    
 
-    it('Deve adicionar um novo usuário', async() => {
+
+    it('Deve adicionar um novo usuário', async () => {
         mockUserRepository.createUser = jest.fn().mockImplementation(() => Promise.resolve(mockUser))
         const response = await userService.createUser('nath', 'nath@test.com', "12345");
         expect(mockUserRepository.createUser).toHaveBeenCalled()
@@ -42,7 +42,7 @@ describe('UserService', () => {
         jest.spyOn(userService, 'getAuthenticatedUser').mockImplementation(() => Promise.resolve(mockUser))
         jest.spyOn(jwt, 'sign').mockImplementation(() => 'token')
         const token = await userService.getToken('jona@gmail.com', '123456')
-        expect(token).toBe('token')
+        expect(token).toEqual({ name: "nath", token: "token" })
     })
 
     it("Deve retornar um erro, caso não encontre um usuário", async () => {
@@ -51,7 +51,7 @@ describe('UserService', () => {
     })
 
     it("Deve Atualizar o usuário pelo id", async () => {
-        const updateUser = {...mockUser, name: 'Nathaly' }
+        const updateUser = { ...mockUser, name: 'Nathaly' }
         jest.spyOn(userService, 'updateUser').mockImplementation(() => Promise.resolve(updateUser))
         const response = await userService.updateUser(mockUser.user_id, { name: 'Nathaly' })
         expect(userService.updateUser).toHaveBeenCalled()
@@ -63,7 +63,7 @@ describe('UserService', () => {
         })
     })
 
-    it("Deve deletar um usuário pelo id", async() => {
+    it("Deve deletar um usuário pelo id", async () => {
         jest.spyOn(userService, 'deleteUser').mockImplementation(() => Promise.resolve(mockUser))
         const response = await userService.deleteUser(mockUser.user_id)
         expect(userService.deleteUser).toHaveBeenCalled()

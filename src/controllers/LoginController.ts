@@ -15,9 +15,9 @@ export class LoginController {
 
         try {
             const { email, password } = request.body
-            const token = await this.userService.getToken(email, password)
+            const { name, token } = await this.userService.getToken(email, password)
 
-            return response.status(200).json({ token })
+            return response.status(200).json({ name, token })
 
         } catch (error) {
             return response.status(500).json({ message: "email or password invalid!" })
